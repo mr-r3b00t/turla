@@ -1,0 +1,16 @@
+// Check PwnDefend github for Turla domains
+// created by mRr3b00t
+// inspired by stripesoc's example! thanks frens!
+// version 0.2
+// PwnDefend the Planet!
+let timeframe = (90d);
+let domainlist = materialize (
+(externaldata(domain: string ) [@"https://raw.githubusercontent.com/mr-r3b00t/turla/main/domains.txt"]
+with (format="txt"))
+| project domain
+| summarize by domain);
+search in (DeviceNetworkEvents, DeviceFileEvents, DeviceEvents)
+Timestamp > ago(timeframe)
+| where RemoteUrl != ""
+| where (RemoteUrl has_any(domainlist))
+| project Timestamp, DeviceName, RemoteIP, RemoteUrl, RemoteIPType, RemotePort, ActionType, FileOriginUrl
